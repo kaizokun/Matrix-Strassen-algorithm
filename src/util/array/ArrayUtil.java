@@ -5,23 +5,30 @@ public class ArrayUtil {
 
 
     public static SubArrayMax maximalSubArray(double[] values){
-        return maximalSubArray(new DoubleTab(values),0,values.length - 1);
+        return maximalSubArray(values,0,values.length - 1);
     }
 
     public static SubArrayMax maximalSubArray(int[] values){
-        return maximalSubArray(new IntegerTab(values),0,values.length - 1);
+
+        double values_d[] = new double[values.length];
+
+        for(int i = 0 ; i < values.length ; i ++) {
+            values_d[i] = values[i];
+        }
+
+        return maximalSubArray(values_d,0,values.length - 1);
     }
 
 
-    public static SubArrayMax maximalSubArray(GenericNumberTab values, int s, int e){
+    public static SubArrayMax maximalSubArray(double values[], int s, int e){
 
         return p_maximalSubArray(values,s,e);
     }
 
-    private static SubArrayMax p_maximalSubArray(GenericNumberTab values, int s, int e){
+    private static SubArrayMax p_maximalSubArray(double values[], int s, int e){
 
         if(s == e){
-            return new SubArrayMax(s, s, values.get(s));
+            return new SubArrayMax(s, e, values[s]);
         }
 
         int m = (s + e) / 2;
@@ -31,10 +38,10 @@ public class ArrayUtil {
         SubArrayMax middle = middleSubTab(values, s, m, e);
 
 
-        if(values.compare(left.sum, right.sum) >= 0 && values.compare(left.sum, middle.sum) >= 0)
+        if( left.sum >= right.sum && left.sum >= middle.sum )
             return left;
 
-        if(values.compare(right.sum, left.sum) >= 0 && values.compare(right.sum, middle.sum) >= 0)
+        if( right.sum >= left.sum && right.sum >= middle.sum)
             return left;
 
         return middle;
@@ -42,34 +49,34 @@ public class ArrayUtil {
     }
 
 
-    private static SubArrayMax middleSubTab(GenericNumberTab values, int s, int m, int e){
+    private static SubArrayMax middleSubTab(double values[], int s, int m, int e){
 
 
-        Comparable leftSum = values.getMin();
+        double leftSum = Double.MIN_VALUE;
         int maxLeft = m;
-        Comparable sumL = values.getZero();
+        double sumL = 0;
 
         for( int i = m ; i >= s ; i -- ){
-            sumL = values.add(sumL, values.get(i));
-            if( values.compare(sumL,leftSum) > 0 ){
+            sumL = sumL + values[i];
+            if( sumL > leftSum ){
                 leftSum = sumL;
                 maxLeft = i;
             }
         }
 
-        Comparable rightSum = values.getMin();
+        double rightSum = Double.MIN_VALUE;
         int maxRight = m;
-        Comparable sumR = values.getZero();
+        double sumR = 0;
 
         for( int i = m + 1 ; i <= e ; i ++ ){
-            sumR = values.add(sumR, values.get(i));
-            if( values.compare(sumR,rightSum) > 0 ){
+            sumR = sumR + values[i];
+            if( sumR > rightSum ){
                 rightSum = sumR;
                 maxRight = i;
             }
         }
 
-        return new SubArrayMax(maxLeft, maxRight, values.add(leftSum, rightSum));
+        return new SubArrayMax(maxLeft, maxRight, leftSum + rightSum);
     }
 
     private static abstract class GenericNumberTab<T>{
@@ -85,69 +92,11 @@ public class ArrayUtil {
 
     }
 
-    private static class DoubleTab extends GenericNumberTab<Double>{
-
-        private double[] tab;
-
-        public DoubleTab(double[] tab) {
-            this.tab = tab;
-        }
-
-        @Override
-        public Double get(int i) {
-            return tab[i];
-        }
-
-        @Override
-        public Double add(Double n1, Double n2) {
-            return n1 + n2;
-        }
-
-        @Override
-        public Double getMin() {
-            return Double.NEGATIVE_INFINITY;
-        }
-
-        @Override
-        public Double getZero() {
-            return 0.0;
-        }
-    }
-
-    private static class IntegerTab extends GenericNumberTab<Integer>{
-
-        private int[] tab;
-
-        public IntegerTab(int[] tab) {
-            this.tab = tab;
-        }
-
-        @Override
-        public Integer get(int i) {
-            return tab[i];
-        }
-
-        @Override
-        public Integer add(Integer n1, Integer n2) {
-            return n1 + n2;
-        }
-
-        @Override
-        public Integer getMin() {
-            return Integer.MIN_VALUE;
-        }
-
-        @Override
-        public Integer getZero() {
-            return 0;
-        }
-    }
-
     private static class SubArrayMax {
         private int iRight, iLeft;
-        private Comparable sum;
+        private double sum;
 
-        private SubArrayMax(int maxLeft, int maxRight, Comparable sum) {
+        private SubArrayMax(int maxLeft, int maxRight, double sum) {
             this.iRight = maxRight;
             this.iLeft = maxLeft;
             this.sum = sum;
@@ -167,7 +116,7 @@ public class ArrayUtil {
     public static void main(String[] args) {
 
       intTabMax();
-       //doubleTabMax();
+      doubleTabMax();
 
     }
 
