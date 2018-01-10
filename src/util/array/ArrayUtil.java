@@ -79,19 +79,6 @@ public class ArrayUtil {
         return new SubArrayMax(maxLeft, maxRight, leftSum + rightSum);
     }
 
-    private static abstract class GenericNumberTab<T>{
-
-        abstract Comparable get(int i);
-        abstract Comparable add(T n1, T n2);
-        abstract Comparable getMin();
-        abstract Comparable getZero();
-
-        public int compare(Comparable n1, Comparable n2) {
-            return n1.compareTo(n2);
-        }
-
-    }
-
     private static class SubArrayMax {
         private int iRight, iLeft;
         private double sum;
