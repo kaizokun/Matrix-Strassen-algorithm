@@ -32,8 +32,8 @@ public class ArrayUtil {
                 r = i;
 
             } else if (sum < 0) {
-                //if the sum is negative with restart just after the current index i
-                //pour the new potential start and a null sum
+                //if the sum is negative we restart just after the current index i
+                //for the new potential start and a null sum
                 sum = 0;
                 s = i + 1;
             }
@@ -105,6 +105,9 @@ public class ArrayUtil {
         int maxLeft = m;
         double sumL = 0;
 
+        /*
+        * calcul la somme maximale à gauche
+        * */
         for (int i = m; i >= s; i--) {
             sumL = sumL + values[i];
             if (sumL > leftSum) {
@@ -117,6 +120,9 @@ public class ArrayUtil {
         int maxRight = m;
         double sumR = 0;
 
+        /*
+        * calcul la somme maximale à droite
+        * */
         for (int i = m + 1; i <= e; i++) {
             sumR = sumR + values[i];
             if (sumR > rightSum) {
