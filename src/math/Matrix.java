@@ -43,11 +43,13 @@ public class Matrix {
         this.original = this;
     }
 
-    public Matrix (Point p1, Point p2, Matrix original){
+    public Matrix(Point p1, Point p2, Matrix original){
         this.p1 = p1;
         this.p2 = p2;
         this.original = original;
         this.splited = true;
+        this.r = p2.x - p1.x + 1;
+        this.c = this.r;
     }
 
     static public Matrix multiply(Matrix m1, Matrix m2) throws Exception {
@@ -129,6 +131,74 @@ public class Matrix {
         for(Matrix m : this.split()){
             m.showSplit();
         }
+    }
+
+    private static Matrix multiplyRec(Matrix ma, Matrix mb, int d){
+
+        String id = Util.getIdent(d);
+        System.out.println(id+"xxxxxxxxxxxxxx Multiply xxxxxxxxxxxxxxxx ");
+        System.out.println(ma.toString(id));
+        System.out.println(mb.toString(id));
+
+        //nouvelle matrice de taille identique à celles reçus en parametre
+        Matrix mc = new Matrix(ma.r, ma.c);
+
+        //si matrice de taille 1
+        if(ma.r == 1){
+            mc.matrix[0][0] = ma.original.matrix[ma.p1.y][ma.p1.x] * mb.original.matrix[mb.p1.y][mb.p1.x];
+
+            System.out.println(id+" Resultat Matrice");
+            System.out.println(mc.toString(id));
+
+            return mc;
+        }
+
+        //decouper les deux matrices en quatres
+        //[1][2]
+        //[3][4]
+
+        Matrix[] mas = ma.split();
+        Matrix[] mbs = mb.split();
+
+        //Créer une matrice vide de même taille que m1 et m2
+        //multiplier les differentes parties de matrices
+        //mc.1 = ma.1 * mb.1 + ma.2 * mb.3
+        //mc.2 = ma.1 * mb.2 + ma.2 * mb.4
+        //mc.3 = ma.3 * mb.1 + ma.4 * mb.3
+        //mc.4 = ma.3 * mb.2 + ma.4 * mb.4
+
+        Matrix mcs[] = mc.split();
+
+        Matrix.add(mcs[0], Matrix.multiplyRec(mas[0], mbs[0], d+1), Matrix.multiplyRec(mas[1],mas[2], d+1));
+
+        Matrix.add(mcs[1], Matrix.multiplyRec(mas[0], mbs[1], d+1), Matrix.multiplyRec(mas[1],mas[3], d+1));
+
+        Matrix.add(mcs[2], Matrix.multiplyRec(mas[2], mbs[0], d+1), Matrix.multiplyRec(mas[3],mas[2], d+1));
+
+        Matrix.add(mcs[3], Matrix.multiplyRec(mas[2], mbs[1], d+1), Matrix.multiplyRec(mas[3],mas[3], d+1));
+
+        System.out.println(id+" ============= Resultat Matrice ============= ");
+        System.out.println(mc.toString(id));
+
+        return mc;
+
+    }
+
+    private static void add(Matrix mc, Matrix ma, Matrix mb) {
+
+        int cote = mc.r;
+
+        for( int i = 0 ; i < cote ; i ++){
+
+            int rc = mc.p1.y + i;
+
+            for(int j = 0 ; j < cote ; j ++){
+
+                int cc = mc.p1.x + j;
+                mc.original.matrix[rc][cc] = ma.matrix[i][j] + mb.matrix[i][j];
+            }
+        }
+
     }
 
 /*
@@ -274,32 +344,78 @@ public class Matrix {
     }
 
 
-
-
-    @Override
-    public String toString() {
+    public String toString(String dec){
 
         StringBuilder builder = new StringBuilder();
 
         //StringBuilder builder = new StringBuilder((r*c) + (r*c*2) + r);
 
+        builder.append("\n"+dec+"Matrice : "+r+" x "+c+"\n");
+
+        builder.append(dec+"P1 : "+p1+" - P2 "+p2+"\n\n");
+
         for (int i = this.p1.y; i <= this.p2.y; i++) {
+            builder.append(dec);
             for (int j = this.p1.x; j <= this.p2.x; j++) {
                 //builder.append('[');
-                builder.append(String.format("[%2.0f]",this.original.matrix[i][j]));
+                builder.append(String.format("[%3.0f]",this.original.matrix[i][j]));
                 //builder.append(']');
             }
             builder.append('\n');
         }
 
         return builder.toString();
+    }
+
+    @Override
+    public String toString() {
+
+        return toString("");
 
     }
 
 
     public static void main(String[] args) {
 
-        splitTest();
+        testMulRec();
+
+    }
+
+    public static void testMulRec(){
+
+        /*
+        *
+        *
+        * 	C1	C2	C3	C4
+        1	34	44	54	64
+        2	82	108	134	160
+        3	34	44	54	64
+        4	82	108	134	160
+
+        * */
+
+        try {
+
+            Matrix m1 = new Matrix(new double[][]{
+                    {1, 2, 3, 4},
+                    {5, 6, 7, 8},
+                    {1, 2, 3, 4},
+                    {5, 6, 7, 8}});
+
+            Matrix m2 = new Matrix(new double[][]{
+                    {1, 2, 3, 4},
+                    {5, 6, 7, 8},
+                    {1, 2, 3, 4},
+                    {5, 6, 7, 8}});
+
+            Matrix m3 = Matrix.multiplyRec(m1,m2,0);
+
+            System.out.println(m3);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
 
     }
 
